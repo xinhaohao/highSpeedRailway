@@ -1,0 +1,55 @@
+project(tutorial_slam2d)
+cmake_minimum_required(VERSION 3.16)
+
+list( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules )
+
+include_directories( "/usr/include/eigen3" )
+
+# 添加cmake模块以使用ceres库
+list( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules )
+# Eigen
+include_directories( "/usr/include/eigen3" )
+# OpenCV
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+# Sophus 
+find_package( Sophus REQUIRED )
+include_directories( ${Sophus_INCLUDE_DIRS} )
+# 寻找G2O
+find_package( G2O REQUIRED )
+include_directories(  ${G2O_INCLUDE_DIRS}   )
+# CSparse
+find_package( CSparse REQUIRED)
+include_directories( ${CSPARSE_INCLUDE_DIR} )
+include_directories(${CSPARSE_INCLUDE_DIR})
+
+add_library(tutorial_slam2d_library SHARED
+  edge_se2_pointxy.cpp  se2.h                vertex_point_xy.h
+  edge_se2.cpp    edge_se2_pointxy.h    vertex_se2.cpp
+  edge_se2.h      vertex_point_xy.cpp  vertex_se2.h
+  parameter_se2_offset.h parameter_se2_offset.cpp
+  types_tutorial_slam2d.h types_tutorial_slam2d.cpp
+  simulator.h simulator.cpp
+  g2o_tutorial_slam2d_api.h
+)
+
+set_target_properties(tutorial_slam2d_library PROPERTIES OUTPUT_NAME ${LIB_PREFIX}tutorial_slam2d)
+
+target_link_libraries(tutorial_slam2d_library -lg2o_core -lg2o_stuff -lg2o_solver_csparse)
+
+add_executable(tutorial_slam2d
+  tutorial_slam2d.cpp
+)
+
+set_target_properties(tutorial_slam2d PROPERTIES OUTPUT_NAME tutorial_slam2d${EXE_POSTFIX})
+# 与G2O和OpenCV链接
+target_link_libraries( tutorial_slam2d_library 
+    ${OpenCV_LIBS}
+    ${Sophus_LIBRARIES}
+    g2o_core g2o_stuff g2o_types_sba  
+    g2o_types_slam3d 
+    g2o_solver_csparse g2o_csparse_extension
+    cholmod g2o_solver_cholmod cxsparse
+)
+
+target_link_libraries(tutorial_slam2d tutorial_slam2d_library)

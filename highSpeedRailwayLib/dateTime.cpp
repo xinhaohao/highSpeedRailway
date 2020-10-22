@@ -61,6 +61,16 @@ void dateTime::operator+=(double d2) {
 void dateTime::operator-=(double d2) {
     this->setTick(this->gettick()-d2);
 }
+void dateTime::operator=(dateTime t2) {
+    year = t2.year;
+    month = t2.month;
+    day = t2.day;
+    hour = t2.hour;
+    min = t2.min;
+    sec = t2.sec;
+    tick = 0;
+    gettick();
+}
 
 void dateTime::setTime(double *ep) {
     year = (int) ep[0];

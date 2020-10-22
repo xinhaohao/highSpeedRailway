@@ -58,7 +58,6 @@ class VertexImuErr : public g2o::BaseVertex<3, Eigen::Vector3d>
         VertexImuErr()
         {
         }
-
         virtual bool read(std::istream& /*is*/)
         {
             cerr << __PRETTY_FUNCTION__ << " not implemented yet" << endl;
@@ -96,6 +95,8 @@ class EdgeImuPoints : public g2o::BaseMultiEdge<3, Eigen::Vector3d>
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         EdgeImuPoints()
         {
+            resize(3);
+            cout << "vertices size:" << _vertices.size() << endl;
         }
         virtual bool read(std::istream& /*is*/)
         {
@@ -110,11 +111,11 @@ class EdgeImuPoints : public g2o::BaseMultiEdge<3, Eigen::Vector3d>
 
         void computeError()
         {
-            const VertexImuErr* params = static_cast<const VertexImuErr*>(vertex(0));
+            const VertexImuErr* params = static_cast<const VertexImuErr*>(vertex(2));
             const double& txyz = params->estimate()(0);
             const double& tz = params->estimate()(1);
             const double& scale = params->estimate()(2);
-            Eigen::Vector3d diff = static_cast<const g2o::VertexPointXYZ*>(vertex(2))->estimate() - static_cast<const g2o::VertexPointXYZ*>(vertex(1))->estimate();
+            Eigen::Vector3d diff = static_cast<const g2o::VertexPointXYZ*>(vertex(1))->estimate() - static_cast<const g2o::VertexPointXYZ*>(vertex(0))->estimate();
             diff *= scale;
             double x, y;
             x = diff(0); y = diff(1);
@@ -175,12 +176,16 @@ int main(int argc, char** argv)
     
     optimizer.setAlgorithm(solver);
 
+    // imu误差项
     VertexImuErr* vtxImu = new VertexImuErr();
-    
+    vtxImu->setEstimate(Eigen::Vector3d(0,0,1));
+    vtxImu->setId(0);
+    optimizer.addVertex(vtxImu);
 
     // 读取imu数据+点坐标
     imuCoord imucoord;
     imucoord.readCsv("../data/0_new_coord.csv");
+    imucoord.downsampling(0.2);
     
     // 读取GPS数据
     vector<baseLine> baselines;
@@ -195,12 +200,13 @@ int main(int argc, char** argv)
         filename = "../data/0_" + baseName + "_R001.csv";
         baselines.emplace_back();
         baselines.back().readCsv(filename);
+        baselines.back().downsampling(0.2);
     }
-    
+    // return 0;
     vector<g2o::VertexPointXYZ*> roverVtxs;
     // 流动站点
     auto &time = imucoord.time;
-    int id = 0;
+    int id = 1;
     for(int i=0;i<time.size()&&i<roverNo;i++){
         auto& t = time[i];
         auto &imudata = imucoord.data[i];
@@ -251,7 +257,18 @@ int main(int argc, char** argv)
             diff[0] = cos(0.001)*x-y*sin(0.001);
             diff[1] = sin(0.001)*x+y*cos(0.001);
             cout << "hxj error:" << diff[0] - x << diff[1] - y << endl;
-
+#if 1
+            auto edge = new EdgeImuPoints();
+            edge->setId(edgeId++);
+            edge->setMeasurement(Eigen::Vector3d(diff[0], diff[1], diff[2]));
+            edge->setInformation(Eigen::Matrix3d::Identity() / 0.00000001);
+            edge->setVertex(0, roverVtxs[i]);
+            edge->setVertex(1, roverVtxs[i+1]);
+            edge->setVertex(2, vtxImu);
+            optimizer.addEdge(edge);
+            cout << "add edge between rovers:" << i << "\t" << i+1 << "\t" << diff[0] << "\t" << diff[1];
+            cout << "\t" << diff[2] << endl;
+#elif
             auto edge = new g2o::EdgePointXYZ();
             edge->setMeasurement(Eigen::Vector3d(diff[0], diff[1], diff[2]));
             edge->setInformation(Eigen::Matrix3d::Identity() / 0.000000006);
@@ -261,6 +278,7 @@ int main(int argc, char** argv)
             optimizer.addEdge(edge);
             cout << "add edge between rovers:" << i << "\t" << i+1 << "\t" << diff[0] << "\t" << diff[1];
             cout << "\t" << diff[2] << endl;
+#endif
         }
     }
 #endif
@@ -293,6 +311,7 @@ int main(int argc, char** argv)
     cout << roverVtxs[0]->estimate()(2) << endl;
 
     optimizer.initializeOptimization();
+    cout << "start optimizer: \n";
     optimizer.optimize(100);
     cout << 100 << endl;
     ofstream ofile;
@@ -311,13 +330,17 @@ int main(int argc, char** argv)
         ofile << s << endl;
         
     }
-    ofile.close();
     cout << roverVtxs[0]->estimate()(0) << "\t";
     cout << roverVtxs[0]->estimate()(1) << "\t";
     cout << roverVtxs[0]->estimate()(2) << endl;
 
     cout << imucoord.data[0][4] << "\t" << imucoord.data[0][5] << "\t" << imucoord.data[0][6] << endl;
     
+    cout << "t1\tt2\tscale\n" ;
+    cout << vtxImu->estimate()(0) << "\t" << vtxImu->estimate()(1) << "\t" << vtxImu->estimate()(2) << endl;
+    ofile << vtxImu->estimate()(0) << "\t" << vtxImu->estimate()(1) << "\t" << vtxImu->estimate()(2) << endl;
+    ofile.close();
+
 
 
 

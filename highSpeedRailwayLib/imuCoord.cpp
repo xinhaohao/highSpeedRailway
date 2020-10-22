@@ -61,3 +61,24 @@ void imuCoord::readCsv(string filename){
     cout << "imuCoords::readCsv:" << endl;
     cout << "time size:" << time.size() << " data size = " << data.size() << endl;
 }
+
+void imuCoord::downsampling(double timeInterval){
+    cout << "before downsamplint, data num:" << time.size() << "\t" << data.size() << endl;
+    vector<vector<double>> data2;
+    vector<dateTime> time2;
+    data2.swap(data);
+    time2.swap(time);
+    int i=0;
+    dateTime t;
+    t = time2[0];
+    while(i<time2.size()){
+        // cout << "time interval:" << time2[i] -t << endl;
+        if(time2[i]-t>timeInterval){
+            time.push_back(time2[i]);
+            data.push_back(data2[i]);
+            t = time2[i];
+        }
+        i++;
+    }
+    cout << "after downsamplint, data num:" << time.size() << "\t" << data.size() << endl;
+}

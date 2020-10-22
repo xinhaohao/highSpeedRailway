@@ -26,6 +26,7 @@ public:
     void setTime(double ep[6]);
     void operator+=(double d2);
     void operator-=(double d2);
+    void operator=(dateTime t2);
     friend ostream &operator << (ostream& output, dateTime datetime);
 
     static double startTick;
@@ -65,7 +66,10 @@ public:
     vector<string> itemName = {"time", "lcj", "hxj", "fyj", "hgj", "x", "y", "z"};
     void toCsv(string filename);
     void readCsv(string filename);
+    void downsampling(double timeInterval);
 };
+
+
 
 class staticCoord{
 public:
@@ -78,6 +82,8 @@ public:
     void readData(const string& file, string base, string rover);
     void writeData(const string& file);
     void readCsv(const string& file);
+    void downsampling(double timeInterval);
+
     vector<double> baseCoord;
     vector<dateTime> time;
     vector<vector<double>> data;

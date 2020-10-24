@@ -3,14 +3,16 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/highSpeedRailwayLib",
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/bayestracking/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "gnu18",
             "cppStandard": "gnu++14",
             "intelliSenseMode": "gcc-x64",
-            "configurationProvider": "vector-of-bool.cmake-tools"
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4

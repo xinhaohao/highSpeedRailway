@@ -1,12 +1,53 @@
 #include "kalman_filter.h"
 #include "highSpeedRailway.h"
+#include "kalman.h"
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
+
+VectorXd HighSpeedSystemModel::f(const VectorXd &xx)
+{
+    assert(isUpdate == 1);
+    assert(xx.rows() == state);
+    assert(dxyz.size() == 3);
+    VectorXd x1(state);
+    x1 = xx;
+    double the, alp, dx, dy;
+    the = xx(3);
+    alp = xx(4);
+    dx = dxyz(0);
+    dy = dxyz(1);
+    x1(0) = xx(0) + alp * (dx * cos(the) - dy * sin(the));
+    x1(1) = xx(1) + alp * (dx * sin(the) + dy * cos(the));
+    x1(2) = xx(2) + alp * dxyz(2);
+    F_.resize(state, state);
+    F_.setIdentity();
+    F_(0, 3) = (-dx * sin(the) - dy * cos(the));
+    F_(1, 3) = dx * cos(the) - dy * sin(the);
+    F_(0, 4) = (dx * cos(the) - dy * sin(the));
+    F_(1, 4) = (dx * sin(the) + dy * cos(the));
+    F_(2, 4) = dxyz(2);
+    isUpdate = 0;
+    return x1;
+}
+
+VectorXd HighSpeedMeasureModel::f(VectorXd &x)
+{
+    assert(x.rows() == state);
+    VectorXd z(3);
+    z = x.head(3);
+    return z;
+}
+
+HighSpeedMeasureModel::~HighSpeedMeasureModel()
+{
+}
 
 int withInuErr()
 {
     // 读取imu数据+点坐标
     imuCoord imucoord;
     imucoord.readCsv("../data/0_new_coord.csv");
-    imucoord.downsampling(0.2);
+    imucoord.downSampling(0.2);
 
     // 读取GPS数据
     vector<baseLine> baselines;
@@ -22,8 +63,12 @@ int withInuErr()
         filename = "../data/0_" + baseName + "_R001.csv";
         baselines.emplace_back();
         baselines.back().readCsv(filename);
-        baselines.back().downsampling(0.2);
+        baselines.back().downSampling(0.2);
     }
+
+    // 初始化
+    HighSpeedMeasureModel mea;
+    HighSpeedSystemModel sys;
 
     // 参数设置
     double measure_error = 0.05;
@@ -49,6 +94,7 @@ int withInuErr()
     Q.setIdentity();
     Q *= pow(0.000001, 2);
 
+    mea.setH(H);
     // 初始化滤波器
     KalmanFilter filter;
     filter.Init(x0, P, F, H, R, Q);
@@ -75,10 +121,15 @@ int withInuErr()
         dxyz(0) = dx * cos(deltaTheta) - dy * sin(deltaTheta);
         dxyz(1) = dx * sin(deltaTheta) + dy * cos(deltaTheta);
         dxyz *= deltaAlpha;
+
         std::cout << "dxyz:\n"
                   << dxyz << endl;
-        filter.predictEKF(dxyz);
-        filter.Update(z_err);
+
+        sys.updateDxyz(dxyz);
+        filter.Predict(sys);
+        mea.setZ(z_err);
+        filter.Update(mea);
+
         std::cout << z - z_err << endl;
         std::cout << z - filter.x_.head(3) << endl;
         auto diff1 = z - z_err;
@@ -101,7 +152,7 @@ int noImuErr()
     // 读取imu数据+点坐标
     imuCoord imucoord;
     imucoord.readCsv("../data/0_new_coord.csv");
-    imucoord.downsampling(0.2);
+    imucoord.downSampling(0.2);
 
     // 读取GPS数据
     vector<baseLine> baselines;
@@ -117,7 +168,7 @@ int noImuErr()
         filename = "../data/0_" + baseName + "_R001.csv";
         baselines.emplace_back();
         baselines.back().readCsv(filename);
-        baselines.back().downsampling(0.2);
+        baselines.back().downSampling(0.2);
     }
 
     // 参数设置

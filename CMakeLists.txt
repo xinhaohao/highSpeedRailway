@@ -38,9 +38,16 @@ add_executable(highSpeedRailway curve_fit.cpp)
 target_link_libraries(highSpeedRailway highSpeedRailwayData)
 set_target_properties(highSpeedRailway PROPERTIES OUTPUT_NAME highSpeedRailway${EXE_POSTFIX})
 
+project(test)
+add_executable(test test.cpp)
+include_directories(./highSpeedRailwayLib)
+target_link_libraries(test highSpeedRailwayData)
+set_target_properties(test PROPERTIES OUTPUT_NAME test${EXE_POSTFIX})
+
 project(kalman)
 add_executable(kalman kalman.cpp ./kalman/kalman_filter.cpp ./kalman/kalman_filter.h)
 include_directories(kalman)
 include_directories(./highSpeedRailwayLib)
 target_link_libraries(kalman highSpeedRailwayData)
 set_target_properties(kalman PROPERTIES OUTPUT_NAME kalman${EXE_POSTFIX})
+

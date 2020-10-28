@@ -5,11 +5,12 @@
             "includePath": [
                 "${workspaceFolder}/highSpeedRailwayLib",
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/bayestracking/include"
+                "${workspaceFolder}/kalman",
+                "${workspaceFolder}/highSpeedRailwayLib"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
-            "cStandard": "gnu18",
+            "cStandard": "gnu14",
             "cppStandard": "gnu++14",
             "intelliSenseMode": "gcc-x64",
             "configurationProvider": "ms-vscode.cmake-tools"

@@ -33,6 +33,7 @@ link_libraries(${OpenCV_LIBS}
               g2o_solver_csparse g2o_csparse_extension
               cholmod g2o_solver_cholmod cxsparse)
 add_subdirectory(highSpeedRailwayLib)
+add_subdirectory(geoLib)
 
 add_executable(highSpeedRailway curve_fit.cpp)
 target_link_libraries(highSpeedRailway highSpeedRailwayData)
@@ -41,7 +42,8 @@ set_target_properties(highSpeedRailway PROPERTIES OUTPUT_NAME highSpeedRailway${
 project(test)
 add_executable(test test.cpp)
 include_directories(./highSpeedRailwayLib)
-target_link_libraries(test highSpeedRailwayData)
+include_directories(./geoLib)
+target_link_libraries(test highSpeedRailwayData geoLib)
 set_target_properties(test PROPERTIES OUTPUT_NAME test${EXE_POSTFIX})
 
 project(kalman)

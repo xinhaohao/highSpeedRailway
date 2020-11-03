@@ -4,7 +4,7 @@
 
 #include "highSpeedRailway.h"
 #include "timeSeriesBase.hpp"
-using std::stof;
+using std::stod;
 
 class staticCoord : public TimeSeriesBase
 {
@@ -23,7 +23,7 @@ void staticCoord::readData(const string &file)
         vector<double> coord;
         for (int i = 0; i < 3 && i < values.size(); i++)
         {
-            coord.push_back(stof(values[i]));
+            coord.push_back(stod(values[i]));
         }
         data.push_back(coord);
     }

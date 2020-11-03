@@ -5,7 +5,7 @@
 #include "highSpeedRailway.h"
 #include <cmath>
 #include <random>
-using std::stof;
+using std::stod;
 
 void calCoord(imuLcjData &imulcj, vector<imuCoord> &res)
 {

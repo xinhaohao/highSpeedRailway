@@ -3,8 +3,9 @@
 //
 
 #include "highSpeedRailway.h"
-using std::stof;
+using std::stod;
 
+// x,y,z
 class baseLine : public TimeSeriesBase
 {
 public:
@@ -17,8 +18,6 @@ public:
      */
     void readData(const string &file, string base, string rover)
     {
-        
-
         baseName = base;
         float scale = 1;
         roverName = rover;
@@ -59,7 +58,7 @@ public:
 
             for (int i = 0; i < 6; i++)
             {
-                eps[i] = stof(items[i]);
+                eps[i] = stod(items[i]);
             }
             t.setTime(eps);
             data.emplace_back();
@@ -67,11 +66,15 @@ public:
             d = vector<double>(3, 0);
             for (int i = 0; i < 3; i++)
             {
-                d[i] = stof(items[6 + i * 2]) / scale;
+                d[i] = stod(items[6 + i * 2]) / scale;
             }
         }
     };
     void readData(const string &filename) override {}
+    void writeCsv(string folder)
+    {
+        TimeSeriesBase::writeCsv(folder + baseName + "_" + roverName + ".csv");
+    }
 
     vector<double> baseCoord;
     string baseName;

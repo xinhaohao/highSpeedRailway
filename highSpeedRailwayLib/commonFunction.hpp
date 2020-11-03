@@ -5,35 +5,48 @@
 #include "vector"
 #include "string"
 #include "map"
+#include "algorithm"
+#include "iostream"
 using std::map;
-using std::stof;
+using std::stod;
 using std::string;
 using std::vector;
+
+static bool compare(vector<int> d1, vector<int> d2)
+{
+    return d1[0] < d2[0];
+}
 
 template <typename T>
 int filter(T &data)
 {
-    map<int, int> rec;
-    vector<int> l;
+    vector<vector<int>> rec;
     for (int i = 0; i < data.size();)
     {
         int v = data[i];
         int i0 = i;
         while (i < data.size() && data[i] == v)
             i++;
-        rec[i - i0] = i0;
+        rec.emplace_back();
+        rec.back().push_back(i - i0);
+        rec.back().push_back(i0);
     }
-    for (auto i : rec)
+    long minlen = INT64_MAX;
+    vector<int> *minInterval;
+    for (auto &i : rec)
     {
-        if (i.first > 200)
-            return 0;
-        if (data[i.second] == 1)
-            continue;
-        for (int j = i.second; j < i.second + i.first; j++)
+        if (i[0] < minlen)
         {
-            data[j] = 1 - data[j];
+            minlen = i[0];
+            minInterval = &i;
         }
-        return 1;
+    }
+    auto &minI = *minInterval;
+    if (minI[0] > 250)
+        return 0;
+    for (int j = minI[1]; j < minI[1] + minI[0]; j++)
+    {
+        data[j] = 1 - data[j];
     }
     return 1;
 }
@@ -71,3 +84,37 @@ static vector<string> split_str(const string &s, const string &seperator)
     }
     return result;
 }
+
+static vector<double> inflectionPointDection(const vector<double> data, int w)
+{
+    int i1, i2;
+    if (data.size() < 2 * w)
+    {
+        std::cerr << "error in inflectionPointDection: data size too small" << std::endl;
+        throw("error in inflectionPointDection: data size too small");
+    }
+    vector<double> ave1(data.size(), 0);
+    vector<double> ave2(data.size(), 0);
+    vector<double> flg(data.size(), 0);
+    auto n = data.size();
+    for (int i = 0; i < w; i++)
+    {
+        ave1[w - 1] += data[i];
+    }
+    ave2[0] = ave1[w - 1];
+    for (int i = w; i < ave1.size() - 1; i++)
+    {
+        ave1[i] = ave1[i - 1] - data[i - w] + data[i];
+    }
+    for (int i = 1; i < n - w + 1; i++)
+    {
+        ave2[i] = ave2[i - 1] - data[i - 1] + data[i + w - 1];
+    }
+    for (int i = w - 1; i < n - w - 1; i++)
+    {
+        flg[i] = ave2[i + 1] - ave1[i];
+    }
+    return flg;
+}
+
+// 按时间对数据进行插值

@@ -3,7 +3,7 @@
 //
 
 #include "highSpeedRailway.h"
-using std::stof;
+using std::stod;
 
 class imuData : public TimeSeriesBase
 {
@@ -26,14 +26,14 @@ void imuData::readData(const string &filename)
         dateTime t{};
         double ep[6];
         auto items = split_str(buff, ",");
-        if (stoi(items[2]) == 0)
-            continue;
-
         if (items.size() < 6)
         {
             cerr << "error in read imu data:" << buff << endl;
             continue;
         }
+        if (stoi(items[2]) == 0)
+            continue;
+
         auto eps = split_str(items[0], "- ");
         if (eps.size() < 7)
         {
@@ -43,16 +43,17 @@ void imuData::readData(const string &filename)
 
         for (int i = 0; i < 6; i++)
         {
-            ep[i] = stof(eps[i]);
+            ep[i] = stod(eps[i]);
         }
-        ep[5] += stof(eps[6]) / 1e3;
+        ep[5] += stod(eps[6]) / 1e3;
         t.setTime(ep);
 
         this->data.emplace_back();
         auto &item = this->data.back();
+        item = vector<double>(3);
         for (int i = 0; i < 3; i++)
         {
-            item[i] = stof(items[3 + i]);
+            item[i] = stod(items[3 + i]);
         }
         this->time.push_back(t);
     }

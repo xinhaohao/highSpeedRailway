@@ -3,7 +3,7 @@
 //
 
 #include "highSpeedRailway.h"
-using std::stof;
+using std::stod;
 
 class imuLcjData : public TimeSeriesBase
 {

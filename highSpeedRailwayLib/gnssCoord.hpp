@@ -2,7 +2,7 @@
 #include "highSpeedRailway.h"
 #include "commonFunction.hpp"
 
-class gnssCoord : TimeSeriesBase
+class gnssCoord : public TimeSeriesBase
 {
 public:
     string stationName;

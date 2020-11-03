@@ -6,7 +6,7 @@
 #include "iostream"
 #include "fstream"
 #include "commonFunction.hpp"
-using std::stof;
+using std::stod;
 
 using std::cerr;
 using std::endl;
@@ -42,14 +42,14 @@ void lcjData::readData(const string &filename)
             continue;
         }
         this->data.emplace_back();
-        this->data.back()[0] = stof(items[1]);
+        this->data.back().push_back(stod(items[1]));
 
         double ep[6];
         for (int i = 0; i < 6; i++)
         {
-            ep[i] = stof(items[3 + i]);
+            ep[i] = stod(items[3 + i]);
         }
-        ep[5] += stof(items[9]) / 1000;
+        ep[5] += stod(items[9]) / 1000;
         datetime.setTime(ep);
         this->time.push_back(datetime);
     }

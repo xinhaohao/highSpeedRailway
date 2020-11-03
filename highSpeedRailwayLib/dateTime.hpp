@@ -2,7 +2,7 @@
 #include <vector>
 #include <iostream>
 using std::ostream;
-using std::stof;
+using std::stod;
 using std::vector;
 class dateTime
 {

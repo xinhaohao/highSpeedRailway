@@ -5,7 +5,7 @@
 
 using std::cout;
 using std::map;
-using std::stof;
+using std::stod;
 /**
  * @brief 基准站坐标
  * 
@@ -18,41 +18,47 @@ public:
      * 
      * @param filename 基准站坐标文件
      */
-    void readData(string filename);
-    void logBaseCoords();
+    void readData(string filename, vector<int> coordIdx = {2, 1, 3}, int nameIdx = 0)
+    {
+        ifstream ifile;
+        ifile.open(filename);
+        string buff;
+        data.clear();
+        name.clear();
+        if (!ifile.is_open())
+            throw("error in open file");
+        while (getline(ifile, buff))
+        {
+            auto items = split_str(buff, ",");
+            if (items.size() < 4)
+                continue;
+            name.push_back(items[0]);
+            data.emplace_back();
+            auto &coords = data.back();
+            for (int i = 0; i < 3; i++)
+            {
+                coords.push_back(stod(items[coordIdx[i]]));
+            }
+            coordsMap[items[0]] = coords;
+        }
+    }
+    void logBaseCoords()
+    {
+        for (auto i : coordsMap)
+        {
+            cout << i.first << ":" << i.second[0] << "," << i.second[1] << "," << i.second[2] << endl;
+        }
+    }
+    string coordSys;
     vector<string> name;
     vector<vector<double>> data;
+    void resetCoordMap()
+    {
+        for (int i = 0; i < name.size(); i++)
+        {
+            coordsMap[name[i]] = data[i];
+        }
+    }
     map<string, vector<double>> coordsMap;
 };
 
-void baseCoords::readData(string filename)
-{
-    ifstream ifile;
-    ifile.open(filename);
-    string buff;
-    while (getline(ifile, buff))
-    {
-        auto items = split_str(buff, ",");
-        if (items.size() < 4)
-            continue;
-        name.push_back(items[0]);
-        vector<double> coords;
-        for (int i = 1; i < 4; i++)
-        {
-            coords.push_back(stof(items[i]));
-        }
-        double tmp = coords[1];
-        coords[1] = coords[0];
-        coords[0] = tmp;
-        data.push_back(coords);
-        coordsMap[items[0]] = coords;
-    }
-}
-
-void baseCoords::logBaseCoords()
-{
-    for (auto i : coordsMap)
-    {
-        cout << i.first << ":" << i.second[0] << "," << i.second[1] << "," << i.second[2] << endl;
-    }
-}

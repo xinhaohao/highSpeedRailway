@@ -1,0 +1,5 @@
+lcj_file            /home/eric/Documents/highSpeedRailway/data/imu_data/20180520/02/LCJ_2018-05-20-12-49-51.txt
+imu_file            /home/eric/Documents/highSpeedRailway/data/imu_data/20180520/02/IMU_2018-05-20-12-49-51.txt
+bse_coord_xyh       /home/eric/Documents/highSpeedRailway/data/base_data/baseCoords.txt
+bse_coord_xyz       /home/eric/Documents/highSpeedRailway/data/base_data/baseCoords_xyz.csv
+rover_coord         /home/eric/Documents/highSpeedRailway/data/rover_coord/2018140_02_1s/2018140_12.XYZ.r001.LC

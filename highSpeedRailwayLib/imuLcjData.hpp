@@ -14,9 +14,7 @@ public:
     }
     // 启停位置
     vector<vector<int>> interval;
-    void readData(const string &filename) override;
+    void readData(const string &filename) override
+    {
+    }
 };
-
-void imuLcjData::readData(const string &filename)
-{
-}

@@ -20,37 +20,36 @@ public:
     {
         items = {"time", "lcj"};
     }
-    void readData(const string &filename) override;
+    void readData(const string &filename) override
+    {
+        ifstream inFile;
+        inFile.open(filename);
+        if (!inFile.is_open())
+        {
+            cerr << "error in open file:" << filename << endl;
+        }
+        string buff;
+        while (getline(inFile, buff))
+        {
+            dateTime datetime{};
+            auto items = split_str(buff, " ,-");
+            if (items.size() < 10)
+            {
+                cerr << "error in read lcjdata line:" << buff << endl;
+                continue;
+            }
+            this->data.emplace_back();
+            this->data.back().push_back(stod(items[1]));
+
+            double ep[6];
+            for (int i = 0; i < 6; i++)
+            {
+                ep[i] = stod(items[3 + i]);
+            }
+            ep[5] += stod(items[9]) / 1000;
+            datetime.setTime(ep);
+            this->time.push_back(datetime);
+        }
+    }
 };
 
-void lcjData::readData(const string &filename)
-{
-    ifstream inFile;
-    inFile.open(filename);
-    if (!inFile.is_open())
-    {
-        cerr << "error in open file:" << filename << endl;
-    }
-    string buff;
-    while (getline(inFile, buff))
-    {
-        dateTime datetime{};
-        auto items = split_str(buff, " ,-");
-        if (items.size() < 10)
-        {
-            cerr << "error in read lcjdata line:" << buff << endl;
-            continue;
-        }
-        this->data.emplace_back();
-        this->data.back().push_back(stod(items[1]));
-
-        double ep[6];
-        for (int i = 0; i < 6; i++)
-        {
-            ep[i] = stod(items[3 + i]);
-        }
-        ep[5] += stod(items[9]) / 1000;
-        datetime.setTime(ep);
-        this->time.push_back(datetime);
-    }
-}

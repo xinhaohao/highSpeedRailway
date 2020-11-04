@@ -35,5 +35,4 @@ void calCoord(imuLcjData &imulcj, vector<imuCoord> &res);
 void transCoord(vector<vector<double>> &coords, vector<vector<double>> &staticCoord, int idx);
 
 void simulate(baseLine &res, imuCoord &coords, double error);
-extern int combineData(TimeSeriesBase &data1, TimeSeriesBase &data2, TimeSeriesBase &res);
 #endif //HIGHSPEEDRAILWAYDATA_HIGHSPEEDRAILWAY_H

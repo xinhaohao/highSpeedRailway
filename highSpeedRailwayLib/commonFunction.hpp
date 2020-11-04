@@ -7,15 +7,13 @@
 #include "map"
 #include "algorithm"
 #include "iostream"
+#include "fstream"
+using std::endl;
 using std::map;
+using std::ofstream;
 using std::stod;
 using std::string;
 using std::vector;
-
-static bool compare(vector<int> d1, vector<int> d2)
-{
-    return d1[0] < d2[0];
-}
 
 template <typename T>
 int filter(T &data)
@@ -112,9 +110,37 @@ static vector<double> inflectionPointDection(const vector<double> data, int w)
     }
     for (int i = w - 1; i < n - w - 1; i++)
     {
-        flg[i] = ave2[i + 1] - ave1[i];
+        flg[i] = (ave2[i + 1] - ave1[i]) / w;
     }
     return flg;
 }
 
 // 按时间对数据进行插值
+
+// 写入数据
+template <typename T>
+static void writeData(T &data, const string &filename)
+{
+    ofstream ofile;
+    ofile.open(filename);
+    ofile.setf(std::ios::fixed);
+    for (const auto &i : data)
+    {
+        for (const auto j : i)
+        {
+            ofile << j << ",";
+        }
+        ofile << endl;
+    }
+    ofile.close();
+}
+
+// 计算运动和静止状态的分界线
+
+/**
+ * @brief 将data1和data2按照时间插值匹配并储存到res中
+ * 
+ * @param data1 
+ * @param data2 
+ * @param res 
+ */
